@@ -88,5 +88,5 @@ def train_model(model, device, train_loader, val_loader, criterion, optimizer, n
         print(f"Time one epoch: {end_time - start_time:.2f} seconds")
         
         # Optional: Implement early stopping or save best model here
-
+        
     return model

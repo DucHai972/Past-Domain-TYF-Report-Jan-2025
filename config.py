@@ -1,4 +1,3 @@
-# config.py
 import argparse
 from dataclasses import dataclass
 
@@ -18,7 +17,7 @@ class Config:
     epoch: int = 200
 
 def parse_arguments() -> Config:
-    parser = argparse.ArgumentParser(description="Train Smallset Model")
+    parser = argparse.ArgumentParser(description="Train and Evaluate Model")
     parser.add_argument('--mul_pos', action='store_true', help='Multiple positive (True/False)')
     parser.add_argument('--no-mul_pos', action='store_false', dest='mul_pos', help='Single positives')
     parser.add_argument('--neg_remaining', action='store_true', help='Neg remaining (True/False)')
@@ -32,6 +31,8 @@ def parse_arguments() -> Config:
     parser.add_argument('--no-chanh', action='store_false', dest='chanh', help='No features thay Chanh')
     parser.add_argument('--aug', action='store_true', help='Augmentation')
     parser.add_argument('--lr', type=float, default=1e-7, help='Learning rate')
+
+    # python main.py --mul_pos --neg_remaining --time test_t2_newnorm --norm_type new --ff --chanh --lr 1e-7 
 
     args = parser.parse_args()
 
