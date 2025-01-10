@@ -1,0 +1,9 @@
+__pycache__/
+
+# Logs and debug files
+*.log
+*.out
+*.err
+
+# All file csv
+*.csv

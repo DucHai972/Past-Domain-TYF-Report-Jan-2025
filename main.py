@@ -20,10 +20,11 @@ def main():
     config = parse_arguments()
 
     train_dataset, val_dataset, test_dataset = split_and_normalize(
-                                                    csv_path=config.csv_path,
+                                                    csv_file=config.csv_path,
                                                     pos_ind=config.pos_ind,
                                                     neg_remaining=config.neg_remaining,
-                                                    mul_pos=config.mul_pos
+                                                    mul_pos=config.mul_pos,
+                                                    norm_type=config.norm_type
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(

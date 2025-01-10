@@ -20,7 +20,7 @@ def save_dataset_to_csv(dataset, file_name):
     print(f"Dataset saved to {file_name}")
 
 # Split the dataset
-def split_and_normalize(csv_file, pos_ind, neg_remaining=True, mul_pos=True): 
+def split_and_normalize(csv_file, pos_ind, neg_remaining=True, mul_pos=True, norm_type='new'): 
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
     
@@ -29,7 +29,6 @@ def split_and_normalize(csv_file, pos_ind, neg_remaining=True, mul_pos=True):
     test_data = data[data['Year'].between(2018, 2021)]
 
     
-    global norm_type
     # Create dataset objects
     train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type)
     val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type)

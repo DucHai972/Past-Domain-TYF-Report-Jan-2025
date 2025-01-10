@@ -39,7 +39,7 @@ def parse_arguments() -> Config:
     if args.aug is None:
         args.aug = False
 
-    if config.mul_pos:
+    if args.mul_pos:
         args.csv_path = '/N/slate/tnn3/HaiND/11-17_newPast/newpast_merra_full_mulpos.csv'
     else:
         args.csv_path = '/N/slate/tnn3/HaiND/11-17_newPast/newpast_merra_full.csv'
