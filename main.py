@@ -5,16 +5,19 @@ from data.data_loader import create_dataloader
 from models.resnet import Resnet
 from utils.class_weight import class_weight
 from utils.training import train_model
+from utils.evaluating import evaluate_model
+from plotting.plotting import plot_and_save
+from plotting.saving_history import save_training_history
+from plotting.saving_metric import generate_and_save_metrics
 
 import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
+import numpy as np
 
 def main():
     config = parse_arguments()
-
 
     train_dataset, val_dataset, test_dataset = split_and_normalize(
                                                     csv_path=config.csv_path,
@@ -55,7 +58,51 @@ def main():
     class_weight = class_weight(num_pos, num_neg)
     criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weight[1]).float()).to(device)
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
-    train_model(config, model, criterion, optimizer, train_loader, val_loader, device)
+    
+    history = {
+        'loss': [],
+        'accuracy': [],
+        'precision': [],
+        'recall': [],
+        'f1': [],
+        'val_loss': [],
+        'val_accuracy': [],
+        'val_precision': [],
+        'val_recall': [],
+        'val_f1': [],
+    }
+
+    model = train_model(model, 
+                        device, 
+                        train_loader, 
+                        val_loader, 
+                        criterion, 
+                        optimizer, 
+                        config.epoch, 
+                        config.time, 
+                        history)
+
+    save_training_history(history, config.time, config.epoch)
+    
+    for metric in ['loss', 'accuracy', 'precision', 'recall', 'f1']:
+        plot_and_save(history, metric, config.time, metric.capitalize())
+
+    # Evaluate the model on the test set
+    all_preds, all_labels, test_loss, test_accuracy = evaluate_model(model, 
+                                                                     test_loader, 
+                                                                     test_dataset, 
+                                                                     criterion, 
+                                                                     device, 
+                                                                     config.time
+                                                                     )
+
+    # Generate confusion matrix and metrics
+    y_pred_binary = np.array([pred.cpu().numpy() for pred in all_preds]).astype(int)
+    y_true = np.array(all_labels).astype(int)
+    generate_and_save_metrics(y_true, y_pred_binary, config.time)
+
+    # Save the model
+    torch.save(model.state_dict(), f'./model/trained_model_{config.time}.pth')
 
 if __name__ == "__main__":
     main()
