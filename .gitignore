@@ -6,4 +6,12 @@ __pycache__/
 *.err
 
 # All file csv
+csv/
 *.csv
+
+# ignore result folder
+result/
+result_earlystopping/
+
+# ignore sandbox folder
+sandbox/

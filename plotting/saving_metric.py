@@ -1,3 +1,8 @@
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+
 def generate_and_save_metrics(y_true, y_pred_binary, time_):
     cm = confusion_matrix(y_true, y_pred_binary)
 

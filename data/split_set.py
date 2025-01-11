@@ -24,9 +24,13 @@ def split_and_normalize(csv_file, pos_ind, neg_remaining=True, mul_pos=True, nor
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
     
-    train_data = data[data['Year'].between(2008, 2014)]
-    val_data = data[data['Year'].between(2015, 2017)]
-    test_data = data[data['Year'].between(2018, 2021)]
+    # train_data = data[data['Year'].between(2008, 2014)]
+    # val_data = data[data['Year'].between(2015, 2017)]
+    # test_data = data[data['Year'].between(2018, 2021)]
+
+    train_data = data[data['Year'] == 2008]
+    val_data = data[data['Year'] == 2015]
+    test_data = data[data['Year'] == 2021]
 
     
     # Create dataset objects

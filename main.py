@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import os
 
 def main():
     config = parse_arguments()
@@ -40,7 +41,7 @@ def main():
         print("Train batch labels shape:", batch_labels.shape)
         break
     end_time = time.time()
-    print("Time taken for one epoch:", end_time - start_time)
+    print("Time taken for one batch:", end_time - start_time)
 
     num_neg, num_pos = (train_dataset.labels == 0).sum(), (train_dataset.labels == 1).sum()
     print(f"Number of 0 labels: {num_neg}")
@@ -51,13 +52,14 @@ def main():
     print(f"Number of 1 labels: {(test_dataset.labels == 1).sum()}")
 
     inp_channel = batch_data.shape[1]
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model = Resnet(inp_channels=inp_channel,
               num_residual_block=[2, 2, 2, 2],
-              num_class=1)
+              num_class=1).to(device)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    class_weight = class_weight(num_pos, num_neg)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weight[1]).float()).to(device)
+    class_weights_tensor = torch.tensor(class_weight(num_pos, num_neg), dtype=torch.float).to(device)
+    criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weights_tensor[1]).float()).to(device)
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
     
     history = {
@@ -76,7 +78,8 @@ def main():
     model = train_model(model, 
                         device, 
                         train_loader, 
-                        val_loader, 
+                        val_loader,
+                        test_loader, 
                         criterion, 
                         optimizer, 
                         config.epoch, 
@@ -102,8 +105,11 @@ def main():
     y_true = np.array(all_labels).astype(int)
     generate_and_save_metrics(y_true, y_pred_binary, config.time)
 
+    model_dir = f'./result/model'
+    os.makedirs(model_dir, exist_ok=True)
+
     # Save the model
-    torch.save(model.state_dict(), f'./model/trained_model_{config.time}.pth')
+    torch.save(model.state_dict(), f'{model_dir}/trained_model_{config.time}.pth')
 
 if __name__ == "__main__":
     main()

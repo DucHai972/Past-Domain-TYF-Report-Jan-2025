@@ -40,8 +40,9 @@ def stack_variables(ds, statistics=None, ff=False, chanh=True):
 
     if chanh:
         # mul_vars = ['RH', 'T', 'OMEGA', 'U', 'V']
-        mul_vars = ['H', 'OMEGA', 'RH', 'T', 'U', 'V']
-
+        # mul_vars = ['H', 'OMEGA', 'RH', 'T', 'U', 'V']
+        mul_vars = ['H']
+        
     stacked_vars = []
 
     for var_name in mul_vars:
@@ -84,16 +85,14 @@ def stack_variables(ds, statistics=None, ff=False, chanh=True):
         single_data = np.nan_to_num(single_data)
         single_vars_data.append(single_data)
     
-    # print("Single: ", np.array(single_vars_data).shape)
-    # print("Multiple: ", np.array(stacked_vars).shape)
     
-    if chanh:
-        single_vars_stacked = np.stack(single_vars_data, axis=-1)
-        data = np.concatenate([single_vars_stacked] + stacked_vars, axis=-1)
-    else:
-        data = np.concatenate([np.stack(single_vars, axis=-1)] + [single_vars_stacked], axis=-1)
-
+    if len(np.array(single_vars_data).shape) == 3:
+        single_vars_data = np.expand_dims(single_vars_data, axis=-1)
+    
+    data = np.concatenate([single_vars_data, stacked_vars], axis=-1)
+ 
     # Rearrange axes for PyTorch compatibility: [C, H, W]
-    data = np.transpose(data, (2, 0, 1))
+    data = np.squeeze(data, axis=0).transpose(2, 0, 1)
+    
 
     return data

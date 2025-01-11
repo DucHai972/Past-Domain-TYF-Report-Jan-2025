@@ -14,7 +14,7 @@ class Config:
     lr: float
     csv_path: str
     alpha: float = 0.85
-    epoch: int = 200
+    epoch: int = 2
 
 def parse_arguments() -> Config:
     parser = argparse.ArgumentParser(description="Train and Evaluate Model")
