@@ -23,9 +23,8 @@ def main():
     train_dataset, val_dataset, test_dataset = split_and_normalize(
                                                     csv_file=config.csv_path,
                                                     pos_ind=config.pos_ind,
-                                                    neg_remaining=config.neg_remaining,
-                                                    mul_pos=config.mul_pos,
-                                                    norm_type=config.norm_type
+                                                    norm_type=config.norm_type,
+                                                    small_set=config.small_set
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(

@@ -24,7 +24,7 @@ def load_statistics(filepath, norm_type = 'new'):
 
     return statistics
 
-def stack_variables(ds, statistics=None, ff=False, chanh=True):
+def stack_variables(ds, statistics=None, small_set=False):
     """
     Stack selected variables from the dataset and normalize using the provided statistics.
     """
@@ -33,34 +33,18 @@ def stack_variables(ds, statistics=None, ff=False, chanh=True):
                800, 775, 750, 725, 700, 650, 600, 550, 
                500, 450, 400, 350, 300, 250, 200, 150, 100]
 
-    if ff:
-        mul_vars = ['H', 'OMEGA', 'QI', 'QL', 'QV', 'RH', 'T', 'U', 'V']
-    else:
-        mul_vars = ['H', 'OME   GA', 'RH', 'T', 'U', 'V']
+    mul_vars = ['H', 'OMEGA', 'QI', 'QL', 'QV', 'RH', 'T', 'U', 'V']
 
-    if chanh:
-        # mul_vars = ['RH', 'T', 'OMEGA', 'U', 'V']
-        # mul_vars = ['H', 'OMEGA', 'RH', 'T', 'U', 'V']
-        mul_vars = ['H']
-        
+
+    if small_set:
+        selected_isobaric_levels = [1000, 975]
+        mul_vars = ['H', 'OMEGA']
+
     stacked_vars = []
 
     for var_name in mul_vars:
         variable_data = []
         
-        if chanh:
-            # if var_name == 'RH':
-            #     selected_isobaric_levels = [750]
-            # elif var_name == 'T':
-            #     selected_isobaric_levels = [900, 500]
-            # elif var_name == 'OMEGA':
-            #     selected_isobaric_levels = [500]
-            # elif var_name == 'U':
-            #     selected_isobaric_levels = [800, 200]
-            # elif var_name == 'V':
-            #     selected_isobaric_levels = [800, 200]
-            
-            selected_isobaric_levels = [800, 200]
 
         for level in selected_isobaric_levels:
             key = f"{var_name}_{level}"
@@ -69,11 +53,14 @@ def stack_variables(ds, statistics=None, ff=False, chanh=True):
                 level_data = (level_data - statistics[key]['mean']) / statistics[key]['std']
             level_data = np.nan_to_num(level_data)
             variable_data.append(level_data)
-        stacked_vars.append(np.stack(variable_data, axis=-1))
-    
+        stacked_vars.append(np.stack(variable_data, axis=0))
 
+    stacked_vars = np.array(stacked_vars)
+    stacked_vars = stacked_vars.reshape(-1, stacked_vars.shape[2], stacked_vars.shape[3])
+    
     single_vars = ['PHIS', 'PS', 'SLP']
-    if chanh:
+
+    if small_set:
         single_vars = ['PHIS']
 
     single_vars_data = []
@@ -85,14 +72,16 @@ def stack_variables(ds, statistics=None, ff=False, chanh=True):
         single_data = np.nan_to_num(single_data)
         single_vars_data.append(single_data)
     
-    
+
     if len(np.array(single_vars_data).shape) == 3:
         single_vars_data = np.expand_dims(single_vars_data, axis=-1)
     
-    data = np.concatenate([single_vars_data, stacked_vars], axis=-1)
+    single_vars_data = np.squeeze(single_vars_data, axis=-1)
+
+    data = np.concatenate([single_vars_data, stacked_vars], axis=0)
  
     # Rearrange axes for PyTorch compatibility: [C, H, W]
-    data = np.squeeze(data, axis=0).transpose(2, 0, 1)
+    # data = np.squeeze(data, axis=0).transpose(2, 0, 1)
     
 
     return data
