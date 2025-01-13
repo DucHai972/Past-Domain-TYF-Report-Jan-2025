@@ -52,7 +52,7 @@ def undersample_data(data, label_column="Label", ratio=10):
     return undersampled_data
 
 # Split the dataset
-def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new'): 
+def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sample=True): 
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
     
@@ -85,10 +85,11 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new'):
         train_data, val_data = train_test_split(train_data, test_size=0.1, random_state=42)
         test_data = data[data['Year'] == 2018]
 
-    # Undersampling
-    train_data = undersample_data(train_data, label_column="Label", ratio=10)
-    val_data = undersample_data(val_data, label_column="Label", ratio=10)
-    test_data = undersample_data(test_data, label_column="Label", ratio=10)
+    if under_sample:
+        # Undersampling
+        train_data = undersample_data(train_data, label_column="Label", ratio=10)
+        val_data = undersample_data(val_data, label_column="Label", ratio=10)
+        test_data = undersample_data(test_data, label_column="Label", ratio=10)
     
     # Create dataset objects
     train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)

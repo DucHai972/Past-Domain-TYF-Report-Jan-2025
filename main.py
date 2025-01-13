@@ -3,6 +3,8 @@ from data.dataset import MerraDataset
 from data.split_set import split_and_normalize
 from data.data_loader import create_dataloader
 from models.resnet import Resnet
+from models.cnn2d import CNN2D
+# from models.cnn3d import CNN3D
 from utils.class_weight import class_weight
 from utils.training import train_model
 from utils.evaluating import evaluate_model
@@ -24,7 +26,8 @@ def main():
                                                     csv_file=config.csv_path,
                                                     pos_ind=config.pos_ind,
                                                     norm_type=config.norm_type,
-                                                    small_set=config.small_set
+                                                    small_set=config.small_set,
+                                                    under_sample=True
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(
@@ -53,10 +56,19 @@ def main():
     inp_channel = batch_data.shape[1]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = Resnet(inp_channels=inp_channel,
+    if config.model == 'resnet':
+        model = Resnet(inp_channels=inp_channel,
               num_residual_block=[2, 2, 2, 2],
               num_class=1).to(device)
+        
+    elif config.model == 'cnn2d': 
+        model = CNN2D(inp_channels=inp_channel,
+              num_class=1).to(device)
 
+    # elif config.model == 'cnn3d':
+    #     model = CNN3D(inp_channels=inp_channel,
+    #           num_class=1).to(device)
+        
     class_weights_tensor = torch.tensor(class_weight(num_pos, num_neg), dtype=torch.float).to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weights_tensor[1]).float()).to(device)
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
