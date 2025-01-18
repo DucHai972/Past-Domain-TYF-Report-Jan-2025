@@ -14,9 +14,12 @@ class MerraDataset(Dataset):
         # self.labels = self._assign_labels()
         self.labels = self.data['Label']
         self.paths = self.data['Path'].values
-        if norm_type == 'new':
+        self.norm_type = norm_type
+        self.small_set = small_set
+
+        if self.norm_type == 'new':
             self.stats_file = "/N/slate/tnn3/HaiND/11-17_newPast/data_statistics.xlsx"
-        elif norm_type == 'old':
+        elif self.norm_type == 'old':
             self.stats_file = "/N/slate/tnn3/DucHGA/TC/DataMerra/Output/data_statistics.xlsx"
         else:
             self.stats_file = None
@@ -28,8 +31,8 @@ class MerraDataset(Dataset):
 
     def __getitem__(self, idx):
         path = self.paths[idx]
-        label = self.labels[idx]
-        
+        # label = self.labels[idx]
+        label = self.labels.iloc[idx]
         # check if path exist else raise error
         if not os.path.exists(path):
             raise FileNotFoundError(f"The file or directory '{path}' does not exist.")
@@ -47,10 +50,10 @@ class MerraDataset(Dataset):
         
         if self.stats_file:
         # Stack variables
-            data = stack_variables(ds, statistics=load_statistics(self.stats_file), small_set=False)
+            data = stack_variables(ds, statistics=load_statistics(filepath=self.stats_file, norm_type=self.norm_type), small_set=self.small_set)
         # data = stack_variables(ds)
         else:
-            data = stack_variables(ds, small_set=False)
+            data = stack_variables(ds, small_set=self.small_set)
 
         return data, label
 

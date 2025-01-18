@@ -27,7 +27,7 @@ def main():
                                                     pos_ind=config.pos_ind,
                                                     norm_type=config.norm_type,
                                                     small_set=config.small_set,
-                                                    under_sample=True
+                                                    under_sample=config.under_sample
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(

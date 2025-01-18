@@ -10,6 +10,7 @@ class Config:
     csv_path: str
     small_set: bool
     model: str
+    under_sample: bool
     alpha: float = 0.85
     epoch: int = 100
     
@@ -22,11 +23,12 @@ def parse_arguments() -> Config:
     parser.add_argument('--lr', type=float, default=1e-7, help='Learning rate')
     parser.add_argument('--small_set', action='store_true', help='Use small set for testing')   
     parser.add_argument('--model', type=str, default='resnet', help='Model type')
-    # python main.py --time test_t2_newnorm --norm_type new --lr 1e-7 --pos_ind 2 > ./out/test_t4_newnorm.out 2>&1 && \
+    parser.add_argument('--under_sample', action='store_true', help='Under sample data')
+    # python main.py --time test_t2_newnorm_testmodel --norm_type new --lr 1e-7 --pos_ind 2 > ./out/test_t4_newnorm.out 2>&1 && \
     # python main.py --time test_t8_newnorm --norm_type new --lr 1e-7 --pos_ind 8 > ./out/test_t8_newnorm.out 2>&1 
     
-    # python main.py --time cnn_t6_newnorm_lr1e7 --norm_type new --lr 1e-7 --pos_ind 6 --model cnn2d > ./out/cnn_t6_newnorm_lr1e7.out 2>&1 && \
-    # python main.py --time cnn_t8_newnorm_lr1e7 --norm_type new --lr 1e-7 --pos_ind 8 --model cnn2d > ./out/cnn_t8_newnorm_lr1e7.out 2>&1
+    # python main.py --time test_t14_newnorm_nosample --norm_type new --lr 1e-7 --pos_ind 14 --model resnet > ./out/test_t14_newnorm_nosample.out 2>&1 && \
+    # python main.py --time test_t16_newnorm_nosample --norm_type new --lr 1e-7 --pos_ind 16 --model resnet > ./out/test_t16_newnorm_nosample.out 2>&1
 
     args = parser.parse_args()
 
@@ -40,7 +42,8 @@ def parse_arguments() -> Config:
         lr=args.lr,
         csv_path=args.csv_path,
         small_set=args.small_set,
-        model=args.model
+        model=args.model,
+        under_sample=args.under_sample
     )
 
     if config.small_set:
@@ -55,5 +58,6 @@ def parse_arguments() -> Config:
     print(f'epoch: {config.epoch}')
     print(f'small_set: {config.small_set}')
     print(f'model: {config.model}')
+    print(f'under_sample: {config.under_sample}')
 
     return config
