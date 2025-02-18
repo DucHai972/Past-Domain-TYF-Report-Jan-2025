@@ -102,8 +102,8 @@ def train_model(model, device, train_loader, val_loader, test_loader, criterion,
         # Implement early stopping or save best model here
         current_val_loss = val_loss
     
-        # if best_val_loss - current_val_loss > min_delta:
-        if False:
+        if best_val_loss - current_val_loss > min_delta:
+        # if False:
             best_val_loss = current_val_loss
             trigger_times = 0  # Reset the trigger times when improvement occurs
         else:

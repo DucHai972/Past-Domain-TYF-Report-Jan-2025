@@ -3,6 +3,7 @@ import pandas as pd
 import time
 from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
+import numpy as np 
 
 def save_dataset_to_csv(dataset, file_name):
     """
@@ -19,6 +20,8 @@ def save_dataset_to_csv(dataset, file_name):
         'Label': dataset.labels,
     }
     df = pd.DataFrame(data_dict)
+    df.sort_values(by='Filename', inplace=True)
+    df.reset_index(drop=True, inplace=True)
     df.to_csv(file_name, index=False)
     print(f"Dataset saved to {file_name}")
 
@@ -52,25 +55,31 @@ def undersample_data(data, label_column="Label", ratio=10):
     return undersampled_data
 
 # Split the dataset
-def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sample=True): 
+def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sample=True, rus=10): 
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
-    
-    data["Path"] = data["Path"].str.replace("nasa-merra2", "nasa-merra2.old")
-    data = data[data['Label'] != -1].reset_index(drop=True)
-    data['Label'] = 0
-    
+
     ibtracs_file = '/N/slate/tnn3/HaiND/01-06_report/csv/FIRST_MERRA2_IBTRACS.csv'
     ibtracs_data = pd.read_csv(ibtracs_file)
 
-
-
+    ibtracs_data = ibtracs_data[(ibtracs_data['LAT'] >= 0) &
+                    (ibtracs_data['LAT'] <= 30) &
+                    (ibtracs_data['LON'] >= 100) &
+                    (ibtracs_data['LON'] <= 150)]
+    
     ibtracs_filenames = set(
     ibtracs_data['ISO_TIME'].apply(lambda x: convert_timestamp_to_filename(x, time_steps_back=pos_ind))
     )
 
+    # data['Label'] = data['Filename'].isin(ibtracs_filenames).astype(int)
+    data['Label'] = np.where(data['Filename'].isin(ibtracs_filenames), 1, data['Label'])
+
+    # data["Path"] = data["Path"].str.replace("nasa-merra2", "nasa-merra2.old")
+    data = data[data['Label'] != -1].reset_index(drop=True)
+    # data['Label'] = 0
+    data.loc[data['Label'] != 1, 'Label'] = 0
     
-    data['Label'] = data['Filename'].isin(ibtracs_filenames).astype(int)
+
 
     # train_data = data[data['Year'].between(2008, 2014)]
     # val_data = data[data['Year'].between(2015, 2017)]
@@ -87,9 +96,9 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
 
     if under_sample:
         # Undersampling
-        train_data = undersample_data(train_data, label_column="Label", ratio=10)
-        val_data = undersample_data(val_data, label_column="Label", ratio=10)
-        test_data = undersample_data(test_data, label_column="Label", ratio=10)
+        train_data = undersample_data(train_data, label_column="Label", ratio=rus)
+        val_data = undersample_data(val_data, label_column="Label", ratio=rus)
+        test_data = undersample_data(test_data, label_column="Label", ratio=rus)
     
     # Create dataset objects
     train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)

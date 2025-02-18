@@ -11,6 +11,8 @@ class Config:
     small_set: bool
     model: str
     under_sample: bool
+    rus: int 
+    class_weight: int 
     alpha: float = 0.85
     epoch: int = 100
     
@@ -24,7 +26,10 @@ def parse_arguments() -> Config:
     parser.add_argument('--small_set', action='store_true', help='Use small set for testing')   
     parser.add_argument('--model', type=str, default='resnet', help='Model type')
     parser.add_argument('--under_sample', action='store_true', help='Under sample data')
-    # python main.py --time test_t2_newnorm_testmodel --norm_type new --lr 1e-7 --pos_ind 2 > ./out/test_t4_newnorm.out 2>&1 && \
+    parser.add_argument('--rus', type=int, required=False, help='Undersample ratio')
+    parser.add_argument('--class_weight', type=int, required=False, help='Class weight')
+
+    # python main.py --time test_t2_newdata --norm_type new --lr 1e-7 --pos_ind 2 --small_set --under_sample --rus 10 --class_weight 1 > ./out/test_t2_newdata.out 2>&1 && \
     # python main.py --time test_t8_newnorm --norm_type new --lr 1e-7 --pos_ind 8 > ./out/test_t8_newnorm.out 2>&1 
     
     # python main.py --time test_t14_newnorm_nosample --norm_type new --lr 1e-7 --pos_ind 14 --model resnet > ./out/test_t14_newnorm_nosample.out 2>&1 && \
@@ -33,7 +38,7 @@ def parse_arguments() -> Config:
     args = parser.parse_args()
 
 
-    args.csv_path = f"/N/slate/tnn3/HaiND/01-06_report/csv/merra_full.csv"
+    args.csv_path = f"/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new_2.csv"
 
     config = Config(
         time=args.time,
@@ -43,7 +48,9 @@ def parse_arguments() -> Config:
         csv_path=args.csv_path,
         small_set=args.small_set,
         model=args.model,
-        under_sample=args.under_sample
+        under_sample=args.under_sample,
+        rus=args.rus,
+        class_weight=args.class_weight
     )
 
     if config.small_set:
@@ -59,5 +66,7 @@ def parse_arguments() -> Config:
     print(f'small_set: {config.small_set}')
     print(f'model: {config.model}')
     print(f'under_sample: {config.under_sample}')
+    print(f'rus: {config.rus}')
+    print(f'class_weight: {config.class_weight}')
 
     return config

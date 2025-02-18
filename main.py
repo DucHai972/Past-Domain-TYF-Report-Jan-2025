@@ -27,7 +27,8 @@ def main():
                                                     pos_ind=config.pos_ind,
                                                     norm_type=config.norm_type,
                                                     small_set=config.small_set,
-                                                    under_sample=config.under_sample
+                                                    under_sample=config.under_sample,
+                                                    rus = config.rus
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(
@@ -68,9 +69,15 @@ def main():
     # elif config.model == 'cnn3d':
     #     model = CNN3D(inp_channels=inp_channel,
     #           num_class=1).to(device)
-        
-    class_weights_tensor = torch.tensor(class_weight(num_pos, num_neg), dtype=torch.float).to(device)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weights_tensor[1]).float()).to(device)
+    
+    if config.class_weight == 1:
+        class_weights_tensor = torch.tensor(class_weight(num_pos, num_neg), dtype=torch.float).to(device)
+        print(f"Class weights: {class_weights_tensor}")
+        criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weights_tensor[1]).float()).to(device)
+    
+    elif config.class_weight == 2:
+        criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(2.0)).to(device)
+
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
     
     history = {

@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
 import torch
+from multiprocessing import cpu_count
 
 def create_dataloader(train_dataset: Dataset, 
                       val_dataset: Dataset, 
@@ -9,7 +10,8 @@ def create_dataloader(train_dataset: Dataset,
             dataset=train_dataset, 
             batch_size=32, 
             shuffle=True, 
-            num_workers=32, 
+            # num_workers=cpu_count(), 
+            num_workers=4,
             pin_memory=True if torch.cuda.is_available() else False
         )
 
@@ -17,7 +19,8 @@ def create_dataloader(train_dataset: Dataset,
         val_dataset, 
         batch_size=32, 
         shuffle=False, 
-        num_workers=32,
+        # num_workers=cpu_count(),
+        num_workers=4,
         pin_memory=True if torch.cuda.is_available() else False
     )
 
@@ -25,7 +28,8 @@ def create_dataloader(train_dataset: Dataset,
         test_dataset, 
         batch_size=32, 
         shuffle=False, 
-        num_workers=32,
+        # num_workers=cpu_count(),
+        num_workers=4,
         pin_memory=True if torch.cuda.is_available() else False
     )
 
