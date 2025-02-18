@@ -21,9 +21,7 @@ class MerraDataset(Dataset):
         self.preprocessed_dir = preprocessed_dir
 
         if self.norm_type == 'new':
-            self.stats_file = "/N/slate/tnn3/HaiND/11-17_newPast/data_statistics.xlsx"
-        elif self.norm_type == 'old':
-            self.stats_file = "/N/slate/tnn3/DucHGA/TC/DataMerra/Output/data_statistics.xlsx"
+            self.stats_file = "/N/slate/tnn3/HaiND/01-06_report/csv/data_statistics.xlsx"
         else:
             self.stats_file = None
         # self.mean = mean

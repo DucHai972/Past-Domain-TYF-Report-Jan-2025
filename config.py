@@ -29,12 +29,6 @@ def parse_arguments() -> Config:
     parser.add_argument('--rus', type=int, required=False, help='Undersample ratio')
     parser.add_argument('--class_weight', type=int, required=False, help='Class weight')
 
-    # python main.py --time test_t2_newdata --norm_type new --lr 1e-7 --pos_ind 2 --small_set --under_sample --rus 10 --class_weight 1 > ./out/test_t2_newdata.out 2>&1 && \
-    # python main.py --time test_t8_newnorm --norm_type new --lr 1e-7 --pos_ind 8 > ./out/test_t8_newnorm.out 2>&1 
-    
-    # python main.py --time test_t14_newnorm_nosample --norm_type new --lr 1e-7 --pos_ind 14 --model resnet > ./out/test_t14_newnorm_nosample.out 2>&1 && \
-    # python main.py --time test_t16_newnorm_nosample --norm_type new --lr 1e-7 --pos_ind 16 --model resnet > ./out/test_t16_newnorm_nosample.out 2>&1
-
     args = parser.parse_args()
 
 
