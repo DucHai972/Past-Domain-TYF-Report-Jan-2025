@@ -10,8 +10,7 @@ def create_dataloader(train_dataset: Dataset,
             dataset=train_dataset, 
             batch_size=32, 
             shuffle=True, 
-            # num_workers=cpu_count(), 
-            num_workers=4,
+            num_workers=cpu_count(), 
             pin_memory=True if torch.cuda.is_available() else False
         )
 
@@ -19,8 +18,7 @@ def create_dataloader(train_dataset: Dataset,
         val_dataset, 
         batch_size=32, 
         shuffle=False, 
-        # num_workers=cpu_count(),
-        num_workers=4,
+        num_workers=cpu_count(),
         pin_memory=True if torch.cuda.is_available() else False
     )
 
@@ -28,8 +26,7 @@ def create_dataloader(train_dataset: Dataset,
         test_dataset, 
         batch_size=32, 
         shuffle=False, 
-        # num_workers=cpu_count(),
-        num_workers=4,
+        num_workers=cpu_count(),
         pin_memory=True if torch.cuda.is_available() else False
     )
 

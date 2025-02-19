@@ -61,14 +61,7 @@ def main():
         model = Resnet(inp_channels=inp_channel,
               num_residual_block=[2, 2, 2, 2],
               num_class=1).to(device)
-        
-    elif config.model == 'cnn2d': 
-        model = CNN2D(inp_channels=inp_channel,
-              num_class=1).to(device)
-
-    # elif config.model == 'cnn3d':
-    #     model = CNN3D(inp_channels=inp_channel,
-    #           num_class=1).to(device)
+    
     
     if config.class_weight == 1:
         class_weights_tensor = torch.tensor(class_weight(num_pos, num_neg), dtype=torch.float).to(device)
@@ -77,6 +70,7 @@ def main():
     
     elif config.class_weight == 2:
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(2.0)).to(device)
+        print(f"Class weights: {torch.tensor(2.0)}")
 
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
     

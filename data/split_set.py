@@ -78,12 +78,6 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
     data = data[data['Label'] != -1].reset_index(drop=True)
     # data['Label'] = 0
     data.loc[data['Label'] != 1, 'Label'] = 0
-    
-
-
-    # train_data = data[data['Year'].between(2008, 2014)]
-    # val_data = data[data['Year'].between(2015, 2017)]
-    # test_data = data[data['Year'].between(2018, 2021)]
 
     if not small_set:
         train_data = data[data['Year'].between(1980, 2016)]
