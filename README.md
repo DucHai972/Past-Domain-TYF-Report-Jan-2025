@@ -6,15 +6,7 @@ This project implements a deep learning pipeline to detect typhoons from meteoro
 
 - [Overview](#overview)
 - [Project Structure](#project-structure)
-- [Data Description](#data-description)
-- [Installation](#installation)
-- [Data Preprocessing](#data-preprocessing)
-- [Model: ResNet18 for Typhoon Detection](#model-resnet18-for-typhoon-detection)
-- [Running the Code](#running-the-code)
-- [Code Explanation](#code-explanation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- [Running the Script](#project-structure)
 
 ---
 
