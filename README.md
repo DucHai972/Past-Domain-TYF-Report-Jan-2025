@@ -76,7 +76,7 @@ python main.py --time t2_rus20_cw2 --norm_type new --lr 1e-7 --pos_ind 2 --under
 To train with undersampling and specific class weights:
 
 ```bash
-python main.py --time experiment_1 --norm_type new --lr 1e-6 --pos_ind 3 --under_sample --rus 10 --class_weight 3
+python main.py --time experiment_1 --norm_type new --lr 1e-7 --pos_ind 2 --under_sample --rus 10 --class_weight 1
 ```
 
 For a quick test using a small dataset:

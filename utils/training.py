@@ -7,6 +7,7 @@ from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_
 import seaborn as sns
 import matplotlib.pyplot as plt
 import copy
+from tqdm import tqdm
 
 def train_one_epoch(model, train_loader, criterion, optimizer, device):
     model.train()
@@ -66,7 +67,7 @@ def train_model(model, device, train_loader, val_loader, test_loader, criterion,
     best_model_path = f'{early_stopping_path}/model/trained_model_{time_}_best.pth'
     
 
-    for epoch in range(num_epochs):
+    for epoch in tqdm(range(num_epochs)):
         start_time = time.time()
         
         train_loss, train_acc, train_prec, train_rec, train_f1 = train_one_epoch(

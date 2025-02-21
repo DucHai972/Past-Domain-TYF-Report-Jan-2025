@@ -31,6 +31,7 @@ def parse_arguments() -> Config:
 
     args = parser.parse_args()
 
+    # python main.py --time t2_rus10_cw1 --norm_type new --lr 1e-7 --pos_ind 2 --under_sample --rus 10 --class_weight 1
 
     args.csv_path = f"/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new_2.csv"
 

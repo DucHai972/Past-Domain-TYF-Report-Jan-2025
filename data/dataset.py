@@ -8,7 +8,13 @@ import os
 import torch
 
 class MerraDataset(Dataset):
-    def __init__(self, data, pos_ind, norm_type='new', small_set=False, preprocessed_dir="/N/scratch/tnn3/data_fullmap"):
+    def __init__(self, 
+                 data, 
+                 pos_ind, 
+                 norm_type='new', 
+                 small_set=False, 
+                 preprocessed_dir="/N/scratch/tnn3/data_fullmap"):
+        
         self.data = data
         self.pos_ind = pos_ind
         
@@ -68,6 +74,20 @@ class MerraDataset(Dataset):
 
         # Load preprocessed tensor
         data = torch.load(file_path)
+
+        # Normalised
+        if self.stats_file:
+            stat_df = pd.read_excel(self.stats_file)
+
+            means = stat_df["Mean"].values.astype(np.float32)
+            stds = stat_df["Std"].values.astype(np.float32)
+            means = means.reshape(-1, 1, 1)
+            stds = stds.reshape(-1, 1, 1)
+            mean_tensor = torch.tensor(means, device=data.device, dtype=data.dtype)
+            std_tensor = torch.tensor(stds, device=data.device, dtype=data.dtype)
+
+            # Normalize the data: (data - mean) / std
+            data = (data - mean_tensor) / std_tensor
 
         return data, label
 

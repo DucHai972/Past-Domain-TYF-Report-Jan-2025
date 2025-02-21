@@ -3,7 +3,7 @@ from data.dataset import MerraDataset
 from data.split_set import split_and_normalize
 from data.data_loader import create_dataloader
 from models.resnet import Resnet
-from models.cnn2d import CNN2D
+# from models.cnn2d import CNN2D
 # from models.cnn3d import CNN3D
 from utils.class_weight import class_weight
 from utils.training import train_model
@@ -12,6 +12,7 @@ from plotting.plotting import plot_and_save
 from plotting.saving_history import save_training_history
 from plotting.saving_metric import generate_and_save_metrics
 
+from tqdm import tqdm
 import time
 import torch
 import torch.nn as nn
@@ -72,6 +73,9 @@ def main():
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(2.0)).to(device)
         print(f"Class weights: {torch.tensor(2.0)}")
 
+    else:
+        criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config.rus/5)).to(device)
+        print(f"Class weights: {torch.tensor(config.rus/5)}")
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
     
     history = {
