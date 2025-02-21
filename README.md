@@ -1,6 +1,6 @@
-# Typhoon Detection with Deep Learning
+# Typhoon Formation Prediction with Deep Learning
 
-This project implements a deep learning pipeline to detect typhoons from meteorological image data. The pipeline includes data loading, preprocessing (including aggregation of images), and training a modified ResNet18 model. The goal is to classify images as either containing a typhoon (positive) or not (negative).
+This project implements a deep learning pipeline to detect typhoons from meteorological image data. The pipeline includes data loading, preprocessing, and training a modified ResNet18 model. The goal is to classify images as either containing a typhoon (positive) or not (negative).
 
 ## Table of Contents
 
@@ -17,7 +17,6 @@ This project is structured to achieve the following:
 - **Data Loading and Preprocessing:**
   - Read meteorological data stored in NetCDF files using **xarray**.
   - Convert the data into NumPy arrays for efficient handling.
-  - Aggregate every *n* images into a single image to capture temporal patterns.
 
 - **Model Training:**
   - Adapt the ResNet18 architecture to work with meteorological data.
