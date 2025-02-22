@@ -76,6 +76,7 @@ def main():
     else:
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config.rus/5)).to(device)
         print(f"Class weights: {torch.tensor(config.rus/5)}")
+    
     optimizer = optim.Adam(model.parameters(), lr=config.lr)
     
     history = {
