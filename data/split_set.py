@@ -71,12 +71,10 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
     ibtracs_data['ISO_TIME'].apply(lambda x: convert_timestamp_to_filename(x, time_steps_back=pos_ind))
     )
 
-    # data['Label'] = data['Filename'].isin(ibtracs_filenames).astype(int)
     data['Label'] = np.where(data['Filename'].isin(ibtracs_filenames), 1, data['Label'])
 
     # data["Path"] = data["Path"].str.replace("nasa-merra2", "nasa-merra2.old")
     data = data[data['Label'] != -1].reset_index(drop=True)
-    # data['Label'] = 0
     data.loc[data['Label'] != 1, 'Label'] = 0
 
     if not small_set:
@@ -106,3 +104,56 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
     return train_dataset, val_dataset, test_dataset
 
 
+def split_and_normalize_fullmap(csv_file, pos_ind, small_set, norm_type='old', under_sample=True, rus=10, strict=False): 
+    # Load the CSV and filter based on criteria
+    data = pd.read_csv(csv_file)
+
+    ibtracs_file = '/N/slate/tnn3/HaiND/01-06_report/csv/FIRST_MERRA2_IBTRACS.csv'
+    ibtracs_data = pd.read_csv(ibtracs_file)
+
+    ibtracs_data = ibtracs_data[(ibtracs_data['LAT'] >= 0) &
+                    (ibtracs_data['LAT'] <= 30) &
+                    (ibtracs_data['LON'] >= 100) &
+                    (ibtracs_data['LON'] <= 150)]
+    
+    ibtracs_filenames = set(
+    ibtracs_data['ISO_TIME'].apply(lambda x: convert_timestamp_to_filename(x, time_steps_back=pos_ind))
+    )
+    
+    if strict:
+        data['Label'] = np.where(data['Filename'].isin(ibtracs_filenames), 1, data['Label'])
+
+    else:
+        data['Label'] = 0
+        matching_indices = data.index[data['Filename'].isin(ibtracs_filenames)]
+        for idx in matching_indices:
+            start_idx = max(idx - pos_ind, 0)
+            data.loc[start_idx:idx, 'Label'] = 1
+
+    data.loc[data['Label'] != 1, 'Label'] = 0
+
+    if not small_set:
+        train_data = data[data['Year'].between(1980, 2016)]
+        train_data, val_data = train_test_split(train_data, test_size=0.1, random_state=42)
+        test_data = data[data['Year'].between(2017, 2023)]
+    else:
+        train_data = data[data['Year'].between(2008, 2012)]
+        train_data, val_data = train_test_split(train_data, test_size=0.1, random_state=42)
+        test_data = data[data['Year'] == 2018]
+
+    if under_sample:
+        # Undersampling
+        train_data = undersample_data(train_data, label_column="Label", ratio=rus)
+        val_data = undersample_data(val_data, label_column="Label", ratio=rus)
+        test_data = undersample_data(test_data, label_column="Label", ratio=rus)
+    
+    # Create dataset objects
+    train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
+    val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
+    test_dataset = MerraDataset(test_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
+
+    save_dataset_to_csv(train_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/train_dataset.csv")
+    save_dataset_to_csv(val_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/val_dataset.csv")
+    save_dataset_to_csv(test_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/test_dataset.csv")
+
+    return train_dataset, val_dataset, test_dataset

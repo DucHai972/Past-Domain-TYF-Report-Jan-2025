@@ -12,6 +12,8 @@ csv/
 # ignore result folder
 result/
 result_earlystopping/
+result_fullmap/
+
 
 # ignore sandbox folder
 sandbox/
@@ -21,3 +23,4 @@ out/
 
 #ignore srun
 srun/
+
