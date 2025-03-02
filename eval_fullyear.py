@@ -34,7 +34,7 @@ def add_score_column(model, device, test_dataset, timestep, strict):
     os.makedirs(csv_dir, exist_ok=True)
     csv_score = os.path.join(csv_dir, csv_name)
     test_dataset.data.to_csv(csv_score, index=False)
-    
+
     return csv_score
 
 def compute_metrics(df):
@@ -105,7 +105,7 @@ def plot_confusion_matrix(cm, filename):
     plt.close()
 
 def plot_distribution(df, filename):
-    # Ensure we extract the month from Filename in a robust way
+    # Extract the month from Filename 
     month_series = pd.to_datetime(
         df['Filename'].str.extract(r'_(\d{4})(\d{2})\d{2}_')[0] +
         df['Filename'].str.extract(r'_(\d{4})(\d{2})\d{2}_')[1],
