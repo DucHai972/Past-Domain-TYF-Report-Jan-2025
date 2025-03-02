@@ -28,9 +28,13 @@ def add_score_column(model, device, test_dataset, timestep, strict):
             scores.extend(torch.sigmoid(outputs).cpu().numpy().squeeze().tolist())
     
     test_dataset.data['Score'] = scores
+    
     csv_name = f'scores_{timestep}_{"strict" if strict else "nostrict"}.csv'
-    csv_score = f'/N/slate/tnn3/HaiND/01-06_report/result_fullmap/csv_score/{csv_name}'
+    csv_dir = f'/N/slate/tnn3/HaiND/01-06_report/result_fullmap/csv_score'
+    os.makedirs(csv_dir, exist_ok=True)
+    csv_score = os.path.join(csv_dir, csv_name)
     test_dataset.data.to_csv(csv_score, index=False)
+    
     return csv_score
 
 def compute_metrics(df):
@@ -147,6 +151,9 @@ def main():
         RESULT_DIR = '/N/slate/tnn3/HaiND/01-06_report/result_fullmap/all_months'
     else:
         RESULT_DIR = '/N/slate/tnn3/HaiND/01-06_report/result_fullmap/storm_months'
+
+    for subdir in ['metrics', 'confusion_matrix', 'distribution']:
+        os.makedirs(os.path.join(RESULT_DIR, subdir), exist_ok=True)
 
     pos_ind = int(timestep.split('_')[0][1:])
 
