@@ -74,7 +74,11 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
     data['Label'] = np.where(data['Filename'].isin(ibtracs_filenames), 1, data['Label'])
 
     # data["Path"] = data["Path"].str.replace("nasa-merra2", "nasa-merra2.old")
-    data = data[data['Label'] != -1].reset_index(drop=True)
+
+    # Filter out the samples near typhoon events if we use under sample
+    if under_sample:
+        data = data[data['Label'] != -1].reset_index(drop=True)
+    
     data.loc[data['Label'] != 1, 'Label'] = 0
 
     if not small_set:
@@ -127,8 +131,8 @@ def split_and_normalize_fullmap(csv_file, pos_ind, small_set, norm_type='old', u
         data['Label'] = 0
         matching_indices = data.index[data['Filename'].isin(ibtracs_filenames)]
         for idx in matching_indices:
-            start_idx = max(idx - pos_ind, 0)
-            data.loc[start_idx:idx, 'Label'] = 1
+            storm_idx = min(idx + pos_ind, len(data) - 1)
+            data.loc[idx:storm_idx, 'Label'] = 1
 
     data.loc[data['Label'] != 1, 'Label'] = 0
 

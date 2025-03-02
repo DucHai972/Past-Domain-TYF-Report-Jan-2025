@@ -78,7 +78,7 @@ class MerraDataset(Dataset):
         # Normalised
         if self.stats_file:
             stat_df = pd.read_excel(self.stats_file)
-
+            
             means = stat_df["Mean"].values.astype(np.float32)
             stds = stat_df["Std"].values.astype(np.float32)
             means = means.reshape(-1, 1, 1)

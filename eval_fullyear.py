@@ -111,6 +111,10 @@ def plot_distribution(df, filename):
     filtered = df[df['Score'] >= 0.5]
     counts = filtered.groupby('Month').size()
     
+    if counts.empty:
+        print("No data available for distribution plot.")
+        return
+
     counts.plot(kind='bar')
     plt.xlabel('Month')
     plt.ylabel('Positive predictions')
@@ -122,6 +126,8 @@ def plot_distribution(df, filename):
     plt.close()
 
 def main():
+    # Running example: python eval_fullyear.py --timestep t2_rus4_cw1 && \
+    
     parser = argparse.ArgumentParser(description="Evaluate Model")
     parser.add_argument('--timestep', type=str, required=True, help='Time step')
     parser.add_argument('--strict', action='store_true', help='Strict evaluation')
@@ -149,6 +155,10 @@ def main():
                    num_residual_block=[2, 2, 2, 2],
                    num_class=1).to(device)
     model_path = f'/N/slate/tnn3/HaiND/01-06_report/result/model/trained_model_{timestep}.pth'
+
+    if not os.path.exists(model_path):
+        model_path = f'/N/slate/tnn3/HaiND/01-06_report/result/model/trained_model_{timestep}_2.pth'
+        
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
@@ -156,7 +166,7 @@ def main():
     _, _, test_dataset = split_and_normalize_fullmap(
         csv_file='/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new_2.csv',
         pos_ind=pos_ind,
-        norm_type='old',
+        norm_type='new',
         small_set=False,
         under_sample=False,
         strict=strict
@@ -194,16 +204,64 @@ def main():
     print(f"  F1 Score: {metrics['label0']['f1']:.2f}")
 
     # Save metrics output to file
-    metrics_file = f'{RESULT_DIR}/metrics/{timestep}.txt'
+    metrics_file = f'{RESULT_DIR}/metrics/{timestep}_{"strict" if strict else "nostrict"}.txt'
     save_metrics(metrics, metrics_file)
 
     # Plot and save confusion matrix
-    cm_file = f'{RESULT_DIR}/confusion_matrix/{timestep}.png'
+    cm_file = f'{RESULT_DIR}/confusion_matrix/{timestep}_{"strict" if strict else "nostrict"}.png'
     plot_confusion_matrix(metrics['confusion_matrix'], cm_file)
 
     # Plot and save distribution of positive predictions per month
-    distribution_file = f'{RESULT_DIR}/distribution/{timestep}.png'
+    distribution_file = f'{RESULT_DIR}/distribution/{timestep}_{"strict" if strict else "nostrict"}.png'
     plot_distribution(df, distribution_file)
 
 if __name__ == '__main__':
     main()
+
+    file_list = [
+    't10_norus_cw1',
+    't10_rus10_cw1',
+    't10_rus20_cw1',
+    't10_rus30_cw1',
+    't10_rus4_cw1',
+    't12_norus_cw1',
+    't12_rus10_cw1',
+    't12_rus20_cw1',
+    't12_rus30_cw1',
+    't12_rus4_cw1',
+    't14_norus_cw1',
+    't14_rus10_cw1',
+    't14_rus20_cw1',
+    't14_rus30_cw1',
+    't14_rus4_cw1',
+    't16_norus_cw1',
+    't16_rus10_cw1',
+    't16_rus20_cw1',
+    't16_rus30_cw1',
+    't16_rus4_cw1',
+    't18_norus_cw1',
+    't18_rus10_cw1',
+    't18_rus20_cw1',
+    't18_rus30_cw1',
+    't18_rus4_cw1',
+    't2_norus_cw1',
+    't2_rus10_cw1',
+    't2_rus20_cw1',
+    't2_rus30_cw1',
+    't2_rus4_cw1',
+    't4_norus_cw1',
+    't4_rus10_cw1',
+    't4_rus20_cw1',
+    't4_rus30_cw1',
+    't4_rus4_cw1',
+    't6_norus_cw1',
+    't6_rus10_cw1',
+    't6_rus20_cw1',
+    't6_rus30_cw1',
+    't6_rus4_cw1',
+    't8_norus_cw1',
+    't8_rus10_cw1',
+    't8_rus20_cw1',
+    't8_rus30_cw1',
+    't8_rus4_cw1'
+]
