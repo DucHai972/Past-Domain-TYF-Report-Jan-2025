@@ -113,4 +113,5 @@ python eval_fullyear.py --timestep t2_rus4_cw1 --strict --fullmonth
 
 ### Output 
 Results for --fullmonth enabled: ./result_fullmap/all_months
+
 Results for --fullmonth disabled: ./result_fullmap/storm_months
