@@ -126,7 +126,7 @@ def plot_distribution(df, filename):
     plt.close()
 
 def main():
-    # Running example: python eval_fullyear.py --timestep t2_rus4_cw1 && \
+    # Running example: python eval_fullyear.py --timestep t2_rus4_cw1 --strict --fullmonth && \
     
     parser = argparse.ArgumentParser(description="Evaluate Model")
     parser.add_argument('--timestep', type=str, required=True, help='Time step')
@@ -164,7 +164,7 @@ def main():
 
     # Create test set
     _, _, test_dataset = split_and_normalize_fullmap(
-        csv_file='/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new_2.csv',
+        csv_file='/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new.csv',
         pos_ind=pos_ind,
         norm_type='new',
         small_set=False,
@@ -217,51 +217,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    file_list = [
-    't10_norus_cw1',
-    't10_rus10_cw1',
-    't10_rus20_cw1',
-    't10_rus30_cw1',
-    't10_rus4_cw1',
-    't12_norus_cw1',
-    't12_rus10_cw1',
-    't12_rus20_cw1',
-    't12_rus30_cw1',
-    't12_rus4_cw1',
-    't14_norus_cw1',
-    't14_rus10_cw1',
-    't14_rus20_cw1',
-    't14_rus30_cw1',
-    't14_rus4_cw1',
-    't16_norus_cw1',
-    't16_rus10_cw1',
-    't16_rus20_cw1',
-    't16_rus30_cw1',
-    't16_rus4_cw1',
-    't18_norus_cw1',
-    't18_rus10_cw1',
-    't18_rus20_cw1',
-    't18_rus30_cw1',
-    't18_rus4_cw1',
-    't2_norus_cw1',
-    't2_rus10_cw1',
-    't2_rus20_cw1',
-    't2_rus30_cw1',
-    't2_rus4_cw1',
-    't4_norus_cw1',
-    't4_rus10_cw1',
-    't4_rus20_cw1',
-    't4_rus30_cw1',
-    't4_rus4_cw1',
-    't6_norus_cw1',
-    't6_rus10_cw1',
-    't6_rus20_cw1',
-    't6_rus30_cw1',
-    't6_rus4_cw1',
-    't8_norus_cw1',
-    't8_rus10_cw1',
-    't8_rus20_cw1',
-    't8_rus30_cw1',
-    't8_rus4_cw1'
-]
