@@ -18,7 +18,6 @@ class MerraDataset(Dataset):
         self.data = data
         self.pos_ind = pos_ind
         
-        # self.labels = self._assign_labels()
         self.labels = self.data['Label']
         self.paths = self.data['Path'].values
         self.filenames = self.data['Filename'].values
@@ -30,13 +29,17 @@ class MerraDataset(Dataset):
             self.stats_file = "/N/slate/tnn3/HaiND/01-06_report/csv/data_statistics.xlsx"
         else:
             self.stats_file = None
-        # self.mean = mean
-        # self.std = std
+
     
     def __len__(self):
         return len(self.paths)
 
     def __getitem__(self, idx):
+        #############
+        # This part is used for stacking all data variables from .nc files
+        #############
+
+
         # path = self.paths[idx]
         # # label = self.labels[idx]
         # label = self.labels.iloc[idx]
@@ -64,6 +67,9 @@ class MerraDataset(Dataset):
 
         # return data, label
 
+
+
+        # Loading stacked data in .pt format
         filename = self.filenames[idx].replace(".nc", ".pt")  # Convert .nc filename to .pt
         label = self.labels.iloc[idx]
 

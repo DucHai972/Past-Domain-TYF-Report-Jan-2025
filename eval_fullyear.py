@@ -130,7 +130,7 @@ def plot_distribution(df, filename):
     plt.close()
 
 def main():
-    # Running example: python eval_fullyear.py --timestep t2_rus4_cw1 --strict --fullmonth && \
+    # Running example: python eval_fullyear.py --timestep t8_rus4_cw1 --strict --fullmonth && \
     
     parser = argparse.ArgumentParser(description="Evaluate Model")
     parser.add_argument('--timestep', type=str, required=True, help='Time step')
