@@ -13,11 +13,12 @@ class MerraDataset(Dataset):
                  pos_ind, 
                  norm_type='new', 
                  small_set=False, 
-                 preprocessed_dir="/N/scratch/tnn3/data_fullmap"):
+                 preprocessed_dir="/N/scratch/tnn3/data_fullmap",
+                 three_d = False):
         
         self.data = data
         self.pos_ind = pos_ind
-        
+        self.three_d = three_d
         self.labels = self.data['Label']
         self.paths = self.data['Path'].values
         self.filenames = self.data['Filename'].values
@@ -94,6 +95,35 @@ class MerraDataset(Dataset):
 
             # Normalize the data: (data - mean) / std
             data = (data - mean_tensor) / std_tensor
+        if self.three_d:
+            data = data.unsqueeze(0)
+
+        # channel_indices = [
+        #     25,  # H_200
+        #     6,   # H_925
+        #     45,  # OMEGA_450
+        #     33,  # OMEGA_875
+        #     53,  # QI_1000
+        #     74,  # QI_250
+        #     70,  # QI_450
+        #     67,  # QI_600
+        #     61,  # QI_800
+        #     57,  # QI_900
+        #     56,  # QI_925
+        #     96,  # QL_400
+        #     90,  # QL_700
+        #     85,  # QL_825
+        #     82,  # QL_900
+        #     80,  # QL_950
+        #     130, # RH_950
+        #     164, # T_725
+        #     178, # U_1000
+        #     185, # U_825
+        #     226, # V_150
+        #     218  # V_550
+        # ]
+        
+        # data = data[np.array(channel_indices), :, :]
 
         return data, label
 

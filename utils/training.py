@@ -7,9 +7,12 @@ from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_
 import seaborn as sns
 import matplotlib.pyplot as plt
 import copy
+from pytorch_metric_learning.losses import NTXentLoss
 from tqdm import tqdm
 
-def train_one_epoch(model, train_loader, criterion, optimizer, device):
+def train_one_epoch(model, train_loader, criterion, optimizer, device, contrastive = False):
+    if contrastive:
+        contrastive_loss = NTXentLoss(temperature=0.10).to(device)
     model.train()
     total_loss, correct, total = 0, 0, 0
     all_preds, all_labels = [], []
@@ -18,8 +21,16 @@ def train_one_epoch(model, train_loader, criterion, optimizer, device):
         inputs, labels = inputs.to(device), labels.to(device).float().unsqueeze(1)
 
         optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
+        
+        if contrastive:
+            outputs, embs = model(inputs)
+            # print(labels.shape)
+            loss1 = criterion(outputs, labels)
+            loss2 = contrastive_loss(embs,labels.squeeze())
+            loss = loss1+loss2
+        else:
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
@@ -33,7 +44,9 @@ def train_one_epoch(model, train_loader, criterion, optimizer, device):
     precision, recall, f1 = compute_metrics(all_labels, all_preds)
     return total_loss / len(train_loader), correct / total, precision, recall, f1
 
-def validate_one_epoch(model, validation_loader, criterion, device):
+def validate_one_epoch(model, validation_loader, criterion, device, contrastive = False):
+    if contrastive:
+        contrastive_loss = NTXentLoss(temperature=0.10).to(device)
     model.eval()
     total_loss, correct, total = 0, 0, 0
     all_preds, all_labels = [], []
@@ -41,8 +54,14 @@ def validate_one_epoch(model, validation_loader, criterion, device):
     with torch.no_grad():
         for inputs, labels in validation_loader:
             inputs, labels = inputs.to(device), labels.to(device).float().unsqueeze(1)
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
+            if contrastive:
+                outputs, embs = model(inputs)
+                loss1 = criterion(outputs, labels)
+                loss2 = contrastive_loss(embs,labels.squeeze())
+                loss = loss1+loss2
+            else:
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
             total_loss += loss.item()
             preds = (torch.sigmoid(outputs) > 0.5).float()
             all_preds.extend(preds.cpu().numpy())
@@ -53,7 +72,7 @@ def validate_one_epoch(model, validation_loader, criterion, device):
     precision, recall, f1 = compute_metrics(all_labels, all_preds)
     return total_loss / len(validation_loader), correct / total, precision, recall, f1
 
-def train_model(model, device, train_loader, val_loader, test_loader, criterion, optimizer, num_epochs, time_, history):
+def train_model(model, device, train_loader, val_loader, test_loader, criterion, optimizer, num_epochs, time_, history, contrastive):
     best_val_loss = float('inf')
     patience = 10
     trigger_times = 0
@@ -71,9 +90,9 @@ def train_model(model, device, train_loader, val_loader, test_loader, criterion,
         start_time = time.time()
         
         train_loss, train_acc, train_prec, train_rec, train_f1 = train_one_epoch(
-            model, train_loader, criterion, optimizer, device)
+            model, train_loader, criterion, optimizer, device,contrastive)
         val_loss, val_acc, val_prec, val_rec, val_f1 = validate_one_epoch(
-            model, val_loader, criterion, device)
+            model, val_loader, criterion, device, contrastive)
         
         # Update history
         history['loss'].append(train_loss)

@@ -15,6 +15,7 @@ class Config:
     class_weight: int 
     alpha: float = 0.85
     epoch: int = 100
+    contrastive: bool = False
     
 
 def parse_arguments() -> Config:
@@ -28,10 +29,10 @@ def parse_arguments() -> Config:
     parser.add_argument('--under_sample', action='store_true', help='Under sample data')
     parser.add_argument('--rus', type=int, required=False, help='Undersample ratio')
     parser.add_argument('--class_weight', type=int, required=False, help='Class weight')
-
+    parser.add_argument('--contrastive', action='store_true',default = False)
     args = parser.parse_args()
 
-    # Ex: python main.py --time t2_rus10_cw1 --norm_type new --lr 1e-7 --pos_ind 2 --under_sample --rus 10 --class_weight 1
+    # Ex: python main.py --time t2_rus4_cw3_fe --norm_type new --lr 1e-7 --pos_ind 2 --under_sample --rus 4 --class_weight 3
 
     args.csv_path = f"/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new.csv"
 
@@ -45,7 +46,8 @@ def parse_arguments() -> Config:
         model=args.model,
         under_sample=args.under_sample,
         rus=args.rus,
-        class_weight=args.class_weight
+        class_weight=args.class_weight,
+        contrastive = args.contrastive
     )
 
     if config.small_set:

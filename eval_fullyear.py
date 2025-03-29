@@ -7,10 +7,16 @@ from tqdm import tqdm
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from data.split_set import split_and_normalize_fullmap, save_dataset_to_csv
-from models.resnet import Resnet
+import sys
+sys.path.insert(-1,"/N/slate/tnn3/DucHGA/Lib")
+from Model.PointOut. ViT_classification import *
 
-def add_score_column(model, device, test_dataset, timestep, strict):
+from data.split_set import split_and_normalize_fullmap, save_dataset_to_csv
+from models.resnet import Resnet,ResnetContrastive
+from models.cnn2d import CNN2D
+from models.cnn3d import CNN3D
+
+def add_score_column(model, device, test_dataset, timestep, strict, contrastive = False):
     model.eval()
     dataloader = DataLoader(
         test_dataset, 
@@ -24,7 +30,10 @@ def add_score_column(model, device, test_dataset, timestep, strict):
     with torch.no_grad():
         for data, _ in tqdm(dataloader, desc="Processing files"):
             data = data.to(device)
-            outputs = model(data)
+            if contrastive:
+                outputs, _ = model(data)
+            else:
+                outputs = model(data)
             scores.extend(torch.sigmoid(outputs).cpu().numpy().squeeze().tolist())
     
     test_dataset.data['Score'] = scores
@@ -136,6 +145,9 @@ def main():
     parser.add_argument('--timestep', type=str, required=True, help='Time step')
     parser.add_argument('--strict', action='store_true', help='Strict evaluation')
     parser.add_argument('--fullmonth', action='store_true', help='Full month evaluation')
+    parser.add_argument('--model',type=str,default="resnet")
+    parser.add_argument('--model_path',type=str,required=True)
+    parser.add_argument('--contrastive',action='store_true',default=False)
     args = parser.parse_args()
 
     timestep = args.timestep
@@ -145,6 +157,9 @@ def main():
     print("Time step:", timestep)
     print("Strict evaluation:", strict)
     print("Full month evaluation:", fullmonth)
+    print("Model:", args.model)
+    print("Model path:", args.model_path)
+    print("Contrastive:", args.contrastive)
 
     # Determine results directory based on fullmonth flag
     if fullmonth:
@@ -158,17 +173,35 @@ def main():
     pos_ind = int(timestep.split('_')[0][1:])
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = Resnet(inp_channels=228,
-                   num_residual_block=[2, 2, 2, 2],
-                   num_class=1).to(device)
-    model_path = f'/N/slate/tnn3/HaiND/01-06_report/result/model/trained_model_{timestep}.pth'
+    if args.model == "resnet":
+        if args.contrastive == False:
+            model = Resnet(inp_channels=228,
+                num_residual_block=[2, 2, 2, 2],
+                num_class=1).to(device)
+        else:
+            model = ResnetContrastive(
+                inp_channels=228,
+                num_residual_block=[2, 2, 2, 2],
+                num_class=1
+            ).to(device)
+    elif args.model == "cnn2d":
+        model = CNN2D(in_channels = 228).to(device)
+    elif args.model == "cnn3d":
+        model = CNN3D().to(device)
+    elif args.model == "vit":
+        model = ViT_remaster(num_classes = 1,
+                             img_size = [61,81],
+                             num_heads = 12).to(device)
+    # model_path = f'/N/slate/tnn3/HaiND/01-06_report/result/model/trained_model_{timestep}.pth'
 
-    if not os.path.exists(model_path):
-        model_path = f'/N/slate/tnn3/HaiND/01-06_report/result/model/trained_model_{timestep}_2.pth'
+    # if not os.path.exists(args.model_path):
+    #     model_path = args.model_path
         
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.load_state_dict(torch.load(args.model_path, map_location=device))
     model.eval()
-
+    three_d = False
+    if args.model == "cnn3d":
+        three_d = True
     # Create test set
     _, _, test_dataset = split_and_normalize_fullmap(
         csv_file='/N/slate/tnn3/HaiND/01-06_report/csv/merra_full_new.csv',
@@ -176,7 +209,8 @@ def main():
         norm_type='new',
         small_set=False,
         under_sample=False,
-        strict=strict
+        strict=strict,
+        three_d=three_d
     )
 
     csv_path = '/N/slate/tnn3/HaiND/01-06_report/sandbox/test_full_label.csv'
@@ -184,7 +218,7 @@ def main():
 
     # Save predictions to CSV and evaluate
     score_csv = add_score_column(model=model, device=device, test_dataset=test_dataset,
-                                 timestep=timestep, strict=strict)
+                                 timestep=timestep, strict=strict, contrastive = args.contrastive)
     df = pd.read_csv(score_csv)
     df.attrs['source_file'] = score_csv  # Add file info to df for metrics
 
@@ -224,3 +258,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

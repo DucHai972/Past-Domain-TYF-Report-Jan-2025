@@ -55,7 +55,7 @@ def undersample_data(data, label_column="Label", ratio=10):
     return undersampled_data
 
 # Split the dataset
-def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sample=True, rus=10): 
+def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sample=True, rus=10, three_d = False): 
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
 
@@ -97,9 +97,9 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
         test_data = undersample_data(test_data, label_column="Label", ratio=rus)
     
     # Create dataset objects
-    train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
-    val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
-    test_dataset = MerraDataset(test_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
+    train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set, three_d=three_d)
+    val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set, three_d=three_d)
+    test_dataset = MerraDataset(test_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set, three_d=three_d)
 
     save_dataset_to_csv(train_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/train_dataset.csv")
     save_dataset_to_csv(val_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/val_dataset.csv")
@@ -108,7 +108,7 @@ def split_and_normalize(csv_file, pos_ind, small_set, norm_type='new', under_sam
     return train_dataset, val_dataset, test_dataset
 
 
-def split_and_normalize_fullmap(csv_file, pos_ind, small_set, norm_type='old', under_sample=True, rus=10, strict=False): 
+def split_and_normalize_fullmap(csv_file, pos_ind, small_set, norm_type='old', under_sample=True, rus=10, strict=False,three_d = False): 
     # Load the CSV and filter based on criteria
     data = pd.read_csv(csv_file)
 
@@ -152,9 +152,9 @@ def split_and_normalize_fullmap(csv_file, pos_ind, small_set, norm_type='old', u
         test_data = undersample_data(test_data, label_column="Label", ratio=rus)
     
     # Create dataset objects
-    train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
-    val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
-    test_dataset = MerraDataset(test_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set)
+    train_dataset = MerraDataset(train_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set,three_d = three_d)
+    val_dataset = MerraDataset(val_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set,three_d = three_d)
+    test_dataset = MerraDataset(test_data, pos_ind=pos_ind, norm_type=norm_type, small_set=small_set,three_d = three_d)
 
     save_dataset_to_csv(train_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/train_dataset.csv")
     save_dataset_to_csv(val_dataset, "/N/slate/tnn3/HaiND/01-06_report/csv/val_dataset.csv")

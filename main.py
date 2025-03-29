@@ -2,16 +2,18 @@ from config import parse_arguments
 from data.dataset import MerraDataset
 from data.split_set import split_and_normalize
 from data.data_loader import create_dataloader
-from models.resnet import Resnet
-# from models.cnn2d import CNN2D
-# from models.cnn3d import CNN3D
+from models.resnet import Resnet,ResnetContrastive
+from models.cnn2d import CNN2D
+from models.cnn3d import CNN3D
 from utils.class_weight import class_weight
 from utils.training import train_model
 from utils.evaluating import evaluate_model
 from plotting.plotting import plot_and_save
 from plotting.saving_history import save_training_history
 from plotting.saving_metric import generate_and_save_metrics
-
+import sys
+sys.path.insert(-1,"/N/slate/tnn3/DucHGA/Lib")
+from Model.PointOut. ViT_classification import *
 from tqdm import tqdm
 import time
 import torch
@@ -22,6 +24,9 @@ import os
 
 def main():
     config = parse_arguments()
+    three_d = False
+    if config.model =="cnn3d":
+        three_d = True
 
     train_dataset, val_dataset, test_dataset = split_and_normalize(
                                                     csv_file=config.csv_path,
@@ -29,7 +34,8 @@ def main():
                                                     norm_type=config.norm_type,
                                                     small_set=config.small_set,
                                                     under_sample=config.under_sample,
-                                                    rus = config.rus
+                                                    rus = config.rus,
+                                                    three_d = three_d
                                                 )
 
     train_loader, val_loader, test_loader = create_dataloader(
@@ -54,15 +60,35 @@ def main():
     print(f"Number of 1 labels: {(val_dataset.labels == 1).sum()}")
     print(f"Number of 0 labels: {(test_dataset.labels == 0).sum()}")
     print(f"Number of 1 labels: {(test_dataset.labels == 1).sum()}")
+    print(f"Contrastive: {config.contrastive}")
 
     inp_channel = batch_data.shape[1]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if config.model == 'resnet':
-        model = Resnet(inp_channels=inp_channel,
-              num_residual_block=[2, 2, 2, 2],
-              num_class=1).to(device)
-    
+        if config.contrastive == False:
+            model = Resnet(inp_channels=inp_channel,
+                num_residual_block=[2, 2, 2, 2],
+                num_class=1).to(device)
+        else:
+            model = ResnetContrastive(
+                inp_channels=inp_channel,
+                num_residual_block=[2, 2, 2, 2],
+                num_class=1
+            ).to(device)
+    elif config.model == 'cnn2d':
+        model = CNN2D(in_channels=228).to(device)
+    elif config.model == 'cnn3d':
+        model = CNN3D().to(device)
+    elif config.model == "vit":
+        model = ViT_remaster(num_classes = 1,
+                             img_size = [61,81],
+                             num_heads = 12).to(device)
+        from torchsummary import summary
+        print(summary(model,(228,61,81)))
+
+        
+        
     if config.under_sample == False:
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor((num_neg/num_pos)/5)).to(device)
         print(f"Class weights: {torch.tensor((num_neg/num_pos)/5)}")
@@ -72,9 +98,9 @@ def main():
         print(f"Class weights: {class_weights_tensor}")
         criterion = nn.BCEWithLogitsLoss(pos_weight=(class_weights_tensor[1]).float()).to(device)
     
-    elif config.class_weight == 2:
-        criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(2.0)).to(device)
-        print(f"Class weights: {torch.tensor(2.0)}")
+    # elif config.class_weight == 2:
+    #     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(2.0)).to(device)
+    #     print(f"Class weights: {torch.tensor(2.0)}")
 
     else:
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(config.rus/5)).to(device)
@@ -103,8 +129,9 @@ def main():
                         criterion, 
                         optimizer, 
                         config.epoch, 
-                        config.time, 
-                        history)
+                        config.time,
+                        history,
+                        config.contrastive)
 
     save_training_history(history, config.time, config.epoch)
     
@@ -117,7 +144,8 @@ def main():
                                                                      test_dataset, 
                                                                      criterion, 
                                                                      device, 
-                                                                     config.time
+                                                                     config.time,
+                                                                     config.contrastive
                                                                      )
 
     # Generate confusion matrix and metrics
